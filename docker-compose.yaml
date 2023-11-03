@@ -1,0 +1,29 @@
+version: "3.1"
+
+services:
+  
+  opendlp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: opendlp-test
+    volumes:
+      - ./apache2.conf:/etc/apache2/apache2.conf
+      - ./OpenDLP-2:/var/www/html/OpenDLP
+    ports:
+      - "80:80"
+  
+  db:
+    image: mysql:5.7
+    ports:
+        - "3306:3306"
+    command: --init-file /data/application/init.sql
+    volumes:
+        - ./init.sql:/data/application/init.sql
+    environment:
+        MYSQL_ROOT_USER: OpenDLP
+        MYSQL_ALLOW_EMPTY_PASSWORD: true
+        MYSQL_DATABASE: OpenDLP
+        MYSQL_USER: OpenDLP
+        MYSQL_PASSWORD: ''
+   
