@@ -10,6 +10,7 @@ services:
     volumes:
       - ./apache2.conf:/etc/apache2/apache2.conf
       - ./OpenDLP-2:/var/www/html/OpenDLP
+      # - ./OpenDLP/perl_modules:/usr/local/lib/x86_64-linux-gnu/perl/5.30.0
     ports:
       - "80:80"
   
