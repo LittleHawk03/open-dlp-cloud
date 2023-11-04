@@ -1,4 +1,5 @@
-FROM salttest/ubuntu-13.04 AS base
+FROM ubuntu/apache2:2.4-20.04_beta AS base
+
 # LABEL maintainer="Micheal Waltz <dockerfiles@ecliptik.com>"
 
 # Environment
@@ -7,12 +8,9 @@ ENV LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8
 
 # Install runtime packages
-RUN DEBIAN_FRONTEND=noninteractive apt-get update \
+RUN apt-get update \
     && apt-get install -y \
-    perl \
-    apache2
-
-
+      perl
 
 # Set app dir
 WORKDIR /var/www/
@@ -20,16 +18,15 @@ WORKDIR /var/www/
 # Intermediate build layer
 FROM base AS build
 #Update system and install packages
-RUN DEBIAN_FRONTEND=noninteractive apt-get update \
+RUN apt-get update \
     && apt-get install -yq \
-    build-essential \
-    cpanminus \
-    apache2-utils
+        build-essential \
+        cpanminus \
+        apache2-utils
 
-
-
-# Install cpan modules CGI \
-RUN cpanm DBI \
+# Install cpan modules
+RUN cpanm CGI \
+    DBI \
     # Filesys::SmbClient \
     Proc::Queue \
     XML::Writer \
@@ -46,30 +43,16 @@ RUN cpanm DBI \
 # Runtime layer
 FROM base AS run
 
-
-
 # ".htpasswd.dlp.agent" will be used when you create policies
 RUN htpasswd -b -c /etc/apache2/.htpasswd.dlp.user dlpuser OpenDLP && \
     htpasswd -b -c /etc/apache2/.htpasswd.dlp.agent dlpuser OpenDLP
 
-COPY OpenDLP/perl_modules /usr/lib/perl5
+COPY OpenDLP/perl_modules /usr/local/lib/x86_64-linux-gnu/perl/5.30.0
 
 # COPY apache2.conf /etc/apache2/apache2.conf
 
 # COPY OpenDLP-2 html/OpenDLP
 
-ENV APACHE_RUN_USER www-data
-ENV APACHE_RUN_GROUP www-data
-ENV APACHE_LOG_DIR /var/log/apache2
-ENV APACHE_LOCK_DIR /var/lock/apache2
-ENV APACHE_PID_FILE /var/run/apache2.pid
-
-
 # Copy build artifacts from build layer
 COPY --from=build /usr/local /usr/local
-
-RUN a2enmod ssl rewrite
-
-# ENTRYPOINT ["/usr/sbin/apache2"]
-CMD /usr/sbin/apache2ctl -D FOREGROUND
 

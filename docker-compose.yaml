@@ -9,7 +9,7 @@ services:
     container_name: opendlp-test
     volumes:
       - ./apache2.conf:/etc/apache2/apache2.conf
-      - ./OpenDLP-2:/var/www/html/OpenDLP
+      - ./OpenDLP-2:/var/www/OpenDLP
       # - ./OpenDLP/perl_modules:/usr/local/lib/x86_64-linux-gnu/perl/5.30.0
     ports:
       - "80:80"
@@ -21,10 +21,11 @@ services:
     command: --init-file /data/application/init.sql
     volumes:
         - ./init.sql:/data/application/init.sql
+        - ./OpenDLP-2/web/etc/default_regexes:/data/default_regexes
     environment:
         MYSQL_ROOT_USER: OpenDLP
         MYSQL_ALLOW_EMPTY_PASSWORD: true
         MYSQL_DATABASE: OpenDLP
         MYSQL_USER: OpenDLP
-        MYSQL_PASSWORD: ''
+        MYSQL_PASSWORD: '684239715'
    
