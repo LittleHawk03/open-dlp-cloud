@@ -24,9 +24,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && apt-get install -yq \
     build-essential \
     cpanminus \
-    apache2-utils
-
-
+    apache2-utils \
+    libdbd-mysql-perl
 
 # Install cpan modules CGI \
 RUN cpanm DBI \
@@ -46,15 +45,17 @@ RUN cpanm DBI \
 # Runtime layer
 FROM base AS run
 
-
+RUN apt-get install sshfs -y 
 
 # ".htpasswd.dlp.agent" will be used when you create policies
 RUN htpasswd -b -c /etc/apache2/.htpasswd.dlp.user dlpuser OpenDLP && \
-    htpasswd -b -c /etc/apache2/.htpasswd.dlp.agent dlpuser OpenDLP
+    htpasswd -b -c /etc/apache2/.htpasswd.dlp.agent dlpuser OpenDLP 
 
-COPY OpenDLP/perl_modules /usr/lib/perl5
+# RUN gpasswd -a root fuse && gpasswd -a www-data fuse  
+    
+COPY OpenDLP/perl_modules/ /usr/lib/perl5/
 
-# COPY apache2.conf /etc/apache2/apache2.conf
+# COPY ssl /etc/apache2/ssl
 
 # COPY OpenDLP-2 html/OpenDLP
 
@@ -64,12 +65,15 @@ ENV APACHE_LOG_DIR /var/log/apache2
 ENV APACHE_LOCK_DIR /var/lock/apache2
 ENV APACHE_PID_FILE /var/run/apache2.pid
 
+RUN a2enmod rewrite && a2enmod ssl
+
+
 
 # Copy build artifacts from build layer
 COPY --from=build /usr/local /usr/local
 
-RUN a2enmod ssl rewrite
+# RUN a2ensite default
 
-# ENTRYPOINT ["/usr/sbin/apache2"]
-CMD /usr/sbin/apache2ctl -D FOREGROUND
+RUN apache2ctl start
+
 

@@ -1,0 +1,61 @@
+<VirtualHost *:443>
+	ServerAdmin webmaster@localhost
+	ServerName localhost
+	DocumentRoot /var/www/
+	<Directory />
+		Options FollowSymLinks
+		AllowOverride None
+	</Directory>
+	<Directory /var/www/>
+		Options Indexes FollowSymLinks MultiViews
+		AllowOverride None
+		Order allow,deny
+		allow from all
+	</Directory>
+
+	Alias /OpenDLP/images/ /var/www/OpenDLP/web/bin/images/
+	<Directory "/var/www/OpenDLP/web/bin/images/">
+		Options FollowSymLinks
+		AllowOverride None
+		order allow,deny
+		allow from all
+		AuthType Basic
+		AuthName "OpenDLP"
+		AuthUserFile /etc/apache2/.htpasswd.dlp.user
+		Require user dlpuser
+	</Directory>
+	ScriptAlias /OpenDLP/ /var/www/OpenDLP/web/bin/
+	<Directory "/var/www/OpenDLP/web/bin/results/">
+		Options FollowSymLinks
+		AllowOverride None
+		order allow,deny
+		allow from all
+		AuthType Basic
+		AuthName "OpenDLP"
+		AuthUserFile /etc/apache2/.htpasswd.dlp.agent
+		Require user ddt
+	</Directory>
+	<Directory "/var/www/OpenDLP/web/bin/">
+		Options FollowSymLinks
+		AllowOverride None
+		order allow,deny
+		allow from all
+		AuthType Basic
+		AuthName "OpenDLP"
+		AuthUserFile /etc/apache2/.htpasswd.dlp.user
+		Require user dlpuser
+	</Directory>
+	
+
+	# Possible values include: debug, info, notice, warn, error, crit,
+	# alert, emerg.
+	LogLevel warn
+
+	
+
+	SSLEngine On
+	SSLVerifyClient require
+	SSLCertificateFile /etc/apache2/ssl/server.crt
+	SSLCertificateKeyFile /etc/apache2/ssl/server.key
+	SSLCACertificateFile /etc/apache2/ssl/server.crt
+</VirtualHost>
